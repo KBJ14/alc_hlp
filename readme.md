@@ -26,5 +26,39 @@ The uploaded image is previewed both **before submission** and **after submissio
 ```bash
 git clone https://github.com/kbj14/alc_hlp.git
 cd gptapp
+```
 
+### 2. Create virtual environment
+```bash
+python3 -m venv .venv
+source .venv/bin/activate   # Linux / macOS
+.venv\Scripts\activate      # Windows (PowerShell)
+```
 
+### 3. Install requirements
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Add environment variables
+- .env file
+```bash
+OPENAI_API_KEY=your_openai_api_key_here
+OPENAI_DEFAULT_MODEL=gpt-4o-mini
+```
+
+### 5. Apply migrations and run the application
+```bash
+python manage.py migrate
+python manage.py runserver
+```
+
+### 6. Usage
+- Open http://127.0.0.1:8000 in your browser.
+- Fill in:
+- Prompt (base instructions / context)
+- Upload Image (PNG or JPG)
+- Text Prompt (your query)
+- Click Get Action.
+- The 🤖 Robot Action will appear on the right-hand panel.
+- Your uploaded image remains in the preview panel even after submission.
