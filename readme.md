@@ -36,6 +36,7 @@ source .venv/bin/activate   # Linux / macOS
 
 ### 3. Install requirements
 ```bash
+cd alc_hlp
 pip install -r requirements.txt
 ```
 
