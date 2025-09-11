@@ -48,7 +48,6 @@ OPENAI_DEFAULT_MODEL=gpt-4o-mini
 
 ### 5. Apply migrations and run the application
 ```bash
-cd gptapp
 python manage.py migrate
 python manage.py runserver
 ```
