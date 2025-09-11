@@ -25,7 +25,6 @@ The uploaded image is previewed both **before submission** and **after submissio
 ### 1. Clone repository
 ```bash
 git clone https://github.com/kbj14/alc_hlp.git
-cd gptapp
 ```
 
 ### 2. Create virtual environment
@@ -49,6 +48,7 @@ OPENAI_DEFAULT_MODEL=gpt-4o-mini
 
 ### 5. Apply migrations and run the application
 ```bash
+cd gptapp
 python manage.py migrate
 python manage.py runserver
 ```
