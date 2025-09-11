@@ -40,7 +40,7 @@ pip install -r requirements.txt
 ```
 
 ### 4. Add environment variables
-- .env file
+- create .env file
 ```bash
 OPENAI_API_KEY=your_openai_api_key_here
 OPENAI_DEFAULT_MODEL=gpt-4o-mini
