@@ -5,7 +5,7 @@ A Django web application that combines:
 - A **text prompt** (query)
 - An **image upload** (PNG/JPG)
 
-All inputs are sent to **OpenAI GPT-4o (Vision)** to generate a response called **🤖 Robot Action**.  
+All inputs are sent to **VLM or VLA** to generate a response called **🤖 Robot Action**.  
 The uploaded image is previewed both **before submission** and **after submission**.
 
 ---
