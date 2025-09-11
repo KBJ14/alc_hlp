@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>High Level Planner</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+  {% load widget_tweaks %}
+
+  <div class="max-w-7xl mx-auto p-6">
+    <!-- Header -->
+    <header class="mb-6 flex items-center justify-between gap-4">
+      <h1 class="text-2xl font-bold tracking-tight">High Level Planner</h1>
+    </header>
+
+    <!-- 2-Column Layout -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+      <!-- LEFT: Prompt Panel -->
+      <section class="bg-white border border-gray-200 rounded-2xl shadow-sm p-5">
+        <form method="post" enctype="multipart/form-data" id="planner-form" class="space-y-4">
+          {% csrf_token %}
+
+          <!-- Prompt -->
+          <div>
+            <label class="block text-sm font-medium mb-1">Prompt</label>
+            {{ form.base_prompt|add_class:"w-full h-56 text-sm rounded-lg border-gray-300 shadow-sm focus:ring-blue-600 focus:border-blue-600" }}
+          </div>
+
+          <!-- Image Upload -->
+          <div>
+            <label class="block text-sm font-medium mb-1">Image (1 file)</label>
+            {{ form.image|add_class:"block w-full text-sm text-gray-900 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700" }}
+          </div>
+
+          <!-- Text Prompt -->
+          <div>
+            <label class="block text-sm font-medium mb-1">Text Prompt</label>
+            {{ form.query|add_class:"w-full h-24 text-sm rounded-lg border-gray-300 shadow-sm focus:ring-blue-600 focus:border-blue-600" }}
+          </div>
+
+          <!-- Submit -->
+          <button type="submit"
+                  class="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg">
+            Get Action
+          </button>
+
+          {% if error %}
+            <div class="p-3 bg-red-50 border border-red-200 text-red-800 rounded-lg">
+              <div class="font-semibold mb-1">Error</div>
+              <pre class="whitespace-pre-wrap text-sm">{{ error }}</pre>
+            </div>
+          {% endif %}
+        </form>
+      </section>
+
+      <!-- RIGHT: Image Preview + Robot Action -->
+      <section class="bg-white border border-gray-200 rounded-2xl shadow-sm p-5 flex flex-col space-y-4">
+        <!-- Image Preview -->
+        <div id="preview-box"
+             class="w-full h-80 border-2 border-dashed border-gray-300 rounded-xl
+                    flex items-center justify-center text-gray-500 text-sm p-4 overflow-hidden">
+
+          <div id="preview-placeholder" class="text-center {% if preview_src %}hidden{% endif %}">
+            <div class="text-lg font-semibold mb-1">Image Preview</div>
+            <div class="text-sm text-gray-400">Uploaded image will appear here.</div>
+          </div>
+
+          <img id="preview-image"
+               src="{% if preview_src %}{{ preview_src }}{% endif %}"
+               alt="Preview"
+               class="{% if preview_src %}{% else %}hidden {% endif %}max-h-full max-w-full object-contain rounded-lg" />
+        </div>
+
+        <!-- Robot Action -->
+        <div class="flex-1">
+          <h2 class="text-lg font-semibold mb-2">🤖 Robot Action</h2>
+          {% if answer %}
+            <pre class="whitespace-pre-wrap text-gray-800 text-sm leading-relaxed">{{ answer }}</pre>
+          {% else %}
+            <div class="text-sm text-gray-500">
+              Model output will appear here after you press <span class="font-medium">Get Action</span>.
+            </div>
+          {% endif %}
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- JS: disable button briefly & image preview -->
+  <script>
+    // 버튼 잠시 비활성화 (중복 제출 방지)
+    const form = document.getElementById('planner-form');
+    if (form) {
+      form.addEventListener('submit', () => {
+        const btn = form.querySelector('button[type="submit"]');
+        if (btn) {
+          btn.disabled = true;
+          const original = btn.textContent;
+          btn.textContent = 'Running...';
+          setTimeout(() => { btn.disabled = false; btn.textContent = original; }, 10000);
+        }
+      });
+    }
+
+    // 이미지 선택 시 즉시 프리뷰
+    document.addEventListener('DOMContentLoaded', function () {
+      const imageInput = document.querySelector('input[name="image"]');
+      const previewImage = document.getElementById('preview-image');
+      const previewPlaceholder = document.getElementById('preview-placeholder');
+
+      if (!imageInput || !previewImage || !previewPlaceholder) return;
+
+      imageInput.addEventListener('change', function (event) {
+        const file = event.target.files && event.target.files[0];
+        if (file) {
+          const url = URL.createObjectURL(file);
+          previewImage.src = url;
+          previewImage.classList.remove('hidden');
+          previewPlaceholder.classList.add('hidden');
+        } else {
+          previewImage.src = '';
+          previewImage.classList.add('hidden');
+          previewPlaceholder.classList.remove('hidden');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
+
+
+
