@@ -38,7 +38,19 @@ def _try_load_font(size: int = 16) -> Optional[ImageFont.FreeTypeFont]:
 
 def draw_detections(img: Image.Image, detections: List[Detection]) -> Image.Image:
     draw = ImageDraw.Draw(img)
-    font = _try_load_font(16)
+    # Dynamic font sizing with env override
+    font_size = None
+    try:
+        env_fs = os.getenv("GROUNDING_LABEL_FONT_SIZE")
+        if env_fs:
+            font_size = max(8, int(env_fs))
+    except Exception:
+        font_size = None
+    if font_size is None:
+        long_side = max(img.size[0], img.size[1])
+        # ~3% of long side, clamped
+        font_size = max(14, min(64, int(long_side * 0.03)))
+    font = _try_load_font(font_size)
     for det in detections:
         x1, y1, x2, y2 = det.box
         draw.rectangle([(x1, y1), (x2, y2)], outline=(255, 0, 0), width=3)
@@ -46,9 +58,20 @@ def draw_detections(img: Image.Image, detections: List[Detection]) -> Image.Imag
         if font is not None and hasattr(draw, "textbbox"):
             x0, y0, x1t, y1t = draw.textbbox((0, 0), label, font=font)
             tw, th = (x1t - x0, y1t - y0)
-            pad = 2
-            draw.rectangle([(x1, y1 - th - pad * 2), (x1 + tw + pad * 2, y1)], fill=(255, 0, 0))
-            draw.text((x1 + pad, y1 - th - pad), label, fill=(255, 255, 255), font=font)
+            pad = max(2, int(font_size * 0.25))
+            bg_left = x1
+            bg_right = x1 + tw + pad * 2
+            bg_top = y1 - th - pad * 2
+            bg_bottom = y1
+            text_x = x1 + pad
+            text_y = y1 - th - pad
+            # If too close to top, flip label below the box
+            if bg_top < 0:
+                bg_top = y1
+                bg_bottom = y1 + th + pad * 2
+                text_y = y1 + pad
+            draw.rectangle([(bg_left, bg_top), (bg_right, bg_bottom)], fill=(255, 0, 0))
+            draw.text((text_x, text_y), label, fill=(255, 255, 255), font=font)
         else:
             draw.text((x1, y1), label, fill=(255, 0, 0))
     return img
