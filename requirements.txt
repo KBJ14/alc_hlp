@@ -3,3 +3,7 @@ openai>=1.52.0
 python-dotenv>=1.0
 Pillow>=10.0
 django-widget-tweaks
+torch>=2.1; sys_platform != 'darwin' or platform_machine != 'arm64'
+transformers>=4.44
+huggingface_hub>=0.23
+numpy>=1.24

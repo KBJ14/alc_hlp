@@ -11,7 +11,14 @@ class VisionPromptForm(forms.Form):
     )
     image = forms.ImageField(
         label="Image (PNG or JPG)",
+        required=False,
         widget=forms.ClearableFileInput(attrs={"accept": "image/*"})
+    )
+
+    # After running Get Box, we pass the boxed image path back in here
+    processed_image_path = forms.CharField(
+        required=False,
+        widget=forms.HiddenInput()
     )
 
 

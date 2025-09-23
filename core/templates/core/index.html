@@ -19,7 +19,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
       <!-- LEFT: Prompt Panel -->
       <section class="bg-white border border-gray-200 rounded-2xl shadow-sm p-5">
-        <form method="post" enctype="multipart/form-data" id="planner-form" class="space-y-4">
+  <form method="post" action="{% url 'index' %}" enctype="multipart/form-data" id="planner-form" class="space-y-4">
           {% csrf_token %}
 
           <!-- Prompt -->
@@ -40,11 +40,20 @@
             {{ form.query|add_class:"w-full h-24 text-sm rounded-lg border-gray-300 shadow-sm focus:ring-blue-600 focus:border-blue-600" }}
           </div>
 
-          <!-- Submit -->
-          <button type="submit"
-                  class="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg">
-            Get Action
-          </button>
+          <!-- Hidden field to carry processed boxed image path -->
+          {{ form.processed_image_path }}
+
+          <!-- Actions: Get Box and Get Action -->
+          <div class="grid grid-cols-2 gap-3">
+            <button type="submit" formmethod="post" formaction="{% url 'get_box' %}"
+                    class="py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg">
+              Get Box
+            </button>
+            <button type="submit" formmethod="post" formaction="{% url 'index' %}"
+                    class="py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg">
+              Get Action
+            </button>
+          </div>
 
           {% if error %}
             <div class="p-3 bg-red-50 border border-red-200 text-red-800 rounded-lg">
@@ -67,8 +76,8 @@
             <div class="text-sm text-gray-400">Uploaded image will appear here.</div>
           </div>
 
-          <img id="preview-image"
-               src="{% if preview_src %}{{ preview_src }}{% endif %}"
+    <img id="preview-image"
+      src="{% if preview_src %}{{ preview_src }}{% endif %}"
                alt="Preview"
                class="{% if preview_src %}{% else %}hidden {% endif %}max-h-full max-w-full object-contain rounded-lg" />
         </div>
@@ -93,8 +102,8 @@
     // 버튼 잠시 비활성화 (중복 제출 방지)
     const form = document.getElementById('planner-form');
     if (form) {
-      form.addEventListener('submit', () => {
-        const btn = form.querySelector('button[type="submit"]');
+      form.addEventListener('submit', (e) => {
+        const btn = e.submitter || form.querySelector('button[type="submit"]');
         if (btn) {
           btn.disabled = true;
           const original = btn.textContent;
