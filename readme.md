@@ -134,4 +134,3 @@ See repository LICENSE (and SAM2 upstream license inside its own repo).
 - OpenAI Vision models
 - TailwindCSS
 
-PRs / extensions welcome.
