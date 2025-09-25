@@ -21,5 +21,17 @@ class VisionPromptForm(forms.Form):
         widget=forms.HiddenInput()
     )
 
+    # Raw uploaded image (saved path in media) to allow further processing steps
+    raw_image_path = forms.CharField(
+        required=False,
+        widget=forms.HiddenInput()
+    )
+
+    # Segmented (mask overlay) image path
+    segmented_image_path = forms.CharField(
+        required=False,
+        widget=forms.HiddenInput()
+    )
+
 
 

@@ -42,12 +42,18 @@
 
           <!-- Hidden field to carry processed boxed image path -->
           {{ form.processed_image_path }}
+          {{ form.raw_image_path }}
+          {{ form.segmented_image_path }}
 
-          <!-- Actions: Get Box and Get Action -->
-          <div class="grid grid-cols-2 gap-3">
+          <!-- Actions: Get Box / Get Segmentation / Get Action -->
+          <div class="grid grid-cols-3 gap-3">
             <button type="submit" formmethod="post" formaction="{% url 'get_box' %}"
                     class="py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg">
               Get Box
+            </button>
+            <button type="submit" formmethod="post" formaction="{% url 'get_segmentation' %}"
+                    class="py-2.5 px-4 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg">
+              Get Segmentation
             </button>
             <button type="submit" formmethod="post" formaction="{% url 'index' %}"
                     class="py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg">
