@@ -1,8 +1,7 @@
 .env
 .venv
 media
+core/__pycache__
+core/utils/__pycache__
+gptapp/__pycache__
 
-# Python cache and bytecode
-__pycache__/
-*.py[cod]
-*$py.class
