@@ -62,7 +62,7 @@ pip install --upgrade pip wheel setuptools
 pip install -r requirements.txt
 ```
 
-### 4. (Optional) Install SAM2 (Segmentation)
+### 4. Install SAM2 (Segmentation)
 From inside `alc_hlp/alc_hlp`, move to the workspace root and clone SAM2 next to this repo:
 ```bash
 # starting from: workspace_root/alc_hlp/alc_hlp
