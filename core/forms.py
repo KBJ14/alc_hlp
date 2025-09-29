@@ -3,10 +3,12 @@ from django import forms
 class VisionPromptForm(forms.Form):
     base_prompt = forms.CharField(
         label="Prompt",
+        required=False,
         widget=forms.Textarea(attrs={"rows": 8})
     )
     query = forms.CharField(
         label="Text Prompt",
+        required=False,
         widget=forms.Textarea(attrs={"rows": 4})
     )
     image = forms.ImageField(
@@ -29,6 +31,12 @@ class VisionPromptForm(forms.Form):
 
     # Segmented (mask overlay) image path
     segmented_image_path = forms.CharField(
+        required=False,
+        widget=forms.HiddenInput()
+    )
+
+    # JSON describing objects detected by "Get Object" (GPT vision)
+    objects_json = forms.CharField(
         required=False,
         widget=forms.HiddenInput()
     )

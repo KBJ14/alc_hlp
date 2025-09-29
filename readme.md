@@ -3,16 +3,17 @@
 Multi-step visual grounding + (optional) segmentation + vision-language reasoning built with **Django 5**, **Grounding DINO**, optional **SAM2**, and **OpenAI** vision models.
 
 ## Workflow Overview
-1. Get Box – Grounding DINO text-prompted object detection (saves boxed image)
-2. Get Segmentation (optional) – SAM2 segmentation using detected boxes as guidance
-3. Get Action – Sends the best available image (segmented > boxed > original) plus merged prompts to OpenAI → Robot Action response
+1. Get Object – Vision model returns a JSON description of objects in the image (pretty-printed in UI and stored in a hidden field)
+2. Get Box – Grounding DINO object detection using labels/types extracted from the JSON (falls back to the user text prompt if JSON is absent)
+3. Get Segmentation (optional) – SAM2 segmentation using (re)detected boxes as guidance
+4. Get Action – Sends the best available image (segmented > boxed > original) plus merged prompts to OpenAI → Robot Action response
 
-Artifacts are written to `media/uploads/` and their relative paths are persisted through hidden form fields.
+Artifacts are written to `media/uploads/` and their relative paths are persisted through hidden form fields: `raw_image_path`, `processed_image_path`, `segmented_image_path`, and `objects_json`.
 
 ---
 
 ## Features
-- Multi-step UI (Get Box / Get Segmentation / Get Action)
+- Multi-step UI (Get Object / Get Box / Get Segmentation / Get Action)
 - Text grounded detection (Grounding DINO via Hugging Face Transformers)
 - Optional SAM2.1 hierarchical segmentation (colored per-object masks)
 - Auto-scaling detection label font (override with env var)
@@ -20,6 +21,13 @@ Artifacts are written to `media/uploads/` and their relative paths are persisted
 - TailwindCSS responsive layout
 - All thresholds/overrides via environment variables
 - Works without SAM2 (falls back to detection only)
+- Vision JSON extraction: fixed prompt asks the model to describe objects as JSON
+- Pretty JSON rendering in UI; JSON is persisted and reused as labels for detection
+- Robust JSON parsing (fence stripping and first-object/array extraction)
+- Per-action timings (Get Object / Get Box / Get Segmentation / Get Action) + Total in the UI
+- Automatic timings reset:
+  - When a new image is uploaded on any action
+  - After server restarts (per-process boot ID check)
 
 ---
 
@@ -113,13 +121,30 @@ Open: http://127.0.0.1:8000
 ---
 
 ## Usage
-1. Upload an image and enter a Text Prompt.
-2. Click Get Box to generate bounding boxes (red outlines + labels).
-3. Click Get Segmentation (if SAM2 configured) to overlay per-object colored masks.
-4. Click Get Action to send the (segmented > boxed > original) image plus prompts to the model.
-5. Robot Action response appears on the right.
+1. Upload an image (the Timings card resets automatically when a new image is chosen).
+2. Click Get Object to extract objects as JSON. The JSON is shown on the right and stored for later steps.
+3. Click Get Box to generate bounding boxes; when JSON exists, only the extracted object labels/types are used for detection.
+4. Click Get Segmentation (if SAM2 configured) to overlay per-object colored masks.
+5. Click Get Action to send the (segmented > boxed > original) image plus prompts to the model.
+6. Objects (JSON) and Action outputs are displayed in separate panels; a Timings card shows per-action durations and total.
 
 You may skip Get Box and go directly to Get Segmentation—detection will run automatically first.
+
+If you skip Get Object, Get Box will use the user-provided text prompt for detection.
+
+---
+
+## Timings
+- The UI shows durations for each action (in seconds) and their total.
+
+---
+
+## Object Extraction Details
+- The fixed prompt asks the model to describe objects in JSON. The app attempts to coerce responses into valid JSON by:
+  - Stripping Markdown code fences
+  - Extracting the first JSON object/array block
+  - Pretty-printing for display and storing a compact JSON string internally
+- Detection labels are derived from common keys like `type`, `label`, `name`, or `object` in list items.
 
 ---
 

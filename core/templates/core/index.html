@@ -22,9 +22,17 @@
   <form method="post" action="{% url 'index' %}" enctype="multipart/form-data" id="planner-form" class="space-y-4">
           {% csrf_token %}
 
-          <!-- Prompt -->
+          <!-- Fixed Object Prompt Display -->
+          <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+            <div class="text-sm font-semibold mb-1">Fixed Object Prompt</div>
+            <pre class="text-xs text-blue-900 whitespace-pre-wrap">The image you are currently viewing is from the head-mounted camera, and you should provide a description of the objects you are observing.
+
+Describe them in JSON format.</pre>
+          </div>
+
+          <!-- Base Prompt for Get Action -->
           <div>
-            <label class="block text-sm font-medium mb-1">Prompt</label>
+            <label class="block text-sm font-medium mb-1">Prompt for Get Action</label>
             {{ form.base_prompt|add_class:"w-full h-56 text-sm rounded-lg border-gray-300 shadow-sm focus:ring-blue-600 focus:border-blue-600" }}
           </div>
 
@@ -34,9 +42,9 @@
             {{ form.image|add_class:"block w-full text-sm text-gray-900 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700" }}
           </div>
 
-          <!-- Text Prompt -->
+          <!-- Text Prompt for Get Action -->
           <div>
-            <label class="block text-sm font-medium mb-1">Text Prompt</label>
+            <label class="block text-sm font-medium mb-1">Text Prompt for Get Action</label>
             {{ form.query|add_class:"w-full h-24 text-sm rounded-lg border-gray-300 shadow-sm focus:ring-blue-600 focus:border-blue-600" }}
           </div>
 
@@ -44,9 +52,14 @@
           {{ form.processed_image_path }}
           {{ form.raw_image_path }}
           {{ form.segmented_image_path }}
+          {{ form.objects_json }}
 
-          <!-- Actions: Get Box / Get Segmentation / Get Action -->
-          <div class="grid grid-cols-3 gap-3">
+          <!-- Actions: Get Object / Get Box / Get Segmentation / Get Action -->
+          <div class="grid grid-cols-4 gap-3">
+            <button type="submit" formmethod="post" formaction="{% url 'get_object' %}"
+                    class="py-2.5 px-4 bg-amber-600 hover:bg-amber-700 text-white font-medium rounded-lg">
+              Get Object
+            </button>
             <button type="submit" formmethod="post" formaction="{% url 'get_box' %}"
                     class="py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg">
               Get Box
@@ -70,8 +83,26 @@
         </form>
       </section>
 
-      <!-- RIGHT: Image Preview + Robot Action -->
+  <!-- RIGHT: Image Preview + Outputs -->
       <section class="bg-white border border-gray-200 rounded-2xl shadow-sm p-5 flex flex-col space-y-4">
+        <!-- Timings -->
+        <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
+          <h3 class="text-sm font-semibold mb-2">⏱️ Timings</h3>
+          <div class="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+            <div class="text-gray-600">Get Object</div>
+            <div class="text-gray-900 text-right">{% if timings.get_object %}{{ timings.get_object|floatformat:2 }} s{% else %}-{% endif %}</div>
+            <div class="text-gray-600">Get Box</div>
+            <div class="text-gray-900 text-right">{% if timings.get_box %}{{ timings.get_box|floatformat:2 }} s{% else %}-{% endif %}</div>
+            <div class="text-gray-600">Get Segmentation</div>
+            <div class="text-gray-900 text-right">{% if timings.get_segmentation %}{{ timings.get_segmentation|floatformat:2 }} s{% else %}-{% endif %}</div>
+            <div class="text-gray-600">Get Action</div>
+            <div class="text-gray-900 text-right">{% if timings.get_action %}{{ timings.get_action|floatformat:2 }} s{% else %}-{% endif %}</div>
+          </div>
+          <div class="mt-2 border-t pt-2 flex justify-between text-sm">
+            <div class="font-semibold">Total</div>
+            <div class="font-semibold">{{ total_time|floatformat:2 }} s</div>
+          </div>
+        </div>
         <!-- Image Preview -->
         <div id="preview-box"
              class="w-full h-80 border-2 border-dashed border-gray-300 rounded-xl
@@ -88,15 +119,23 @@
                class="{% if preview_src %}{% else %}hidden {% endif %}max-h-full max-w-full object-contain rounded-lg" />
         </div>
 
-        <!-- Robot Action -->
-        <div class="flex-1">
-          <h2 class="text-lg font-semibold mb-2">🤖 Robot Action</h2>
-          {% if answer %}
-            <pre class="whitespace-pre-wrap text-gray-800 text-sm leading-relaxed">{{ answer }}</pre>
+        <!-- Object JSON Output -->
+        <div>
+          <h2 class="text-lg font-semibold mb-2">📦 Objects (JSON)</h2>
+          {% if object_answer %}
+            <pre class="whitespace-pre text-gray-800 text-sm leading-relaxed">{{ object_answer }}</pre>
           {% else %}
-            <div class="text-sm text-gray-500">
-              Model output will appear here after you press <span class="font-medium">Get Action</span>.
-            </div>
+            <div class="text-sm text-gray-500">Run <span class="font-medium">Get Object</span> to see detected objects JSON.</div>
+          {% endif %}
+        </div>
+
+        <!-- Action Output -->
+        <div class="flex-1">
+          <h2 class="text-lg font-semibold mb-2">🤖 Action</h2>
+          {% if action_answer %}
+            <pre class="whitespace-pre-wrap text-gray-800 text-sm leading-relaxed">{{ action_answer }}</pre>
+          {% else %}
+            <div class="text-sm text-gray-500">Run <span class="font-medium">Get Action</span> to see the action response.</div>
           {% endif %}
         </div>
       </section>
